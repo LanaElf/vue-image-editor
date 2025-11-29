@@ -104,4 +104,14 @@ const downloadBlob = (blob: Blob, filename: string) => {
     gap: 8px;
     margin-top: 20px;
 }
+
+.btn-cancel {
+    background-color: var(--warning-color);
+}
+
+@media(max-width: 575px) {
+    .modal-content {
+       margin: 1em; 
+    }
+}
 </style>

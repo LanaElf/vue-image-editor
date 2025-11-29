@@ -5,7 +5,7 @@
         <h1>PDF‑редактор</h1> 
 
         <label class="btn">
-            Выбрать документ
+            Выбрать PDF
             <input
               type="file"
               accept="application/pdf"
@@ -40,8 +40,6 @@
             </template>
         </div>
 
-        <div v-if="error" class="error">{{ error }}</div>
-
         <div class="editor-layout" v-if="pdfLoaded">
           <div class="pdf-container">
             <canvas ref="pdfCanvas"></canvas>
@@ -51,6 +49,8 @@
             <PinturaExploiter :imageSrc="currentImageSrc" />
           </div>
         </div>
+
+        <ErrorPopup v-model="error" />
     </div>
   </div>
 </template>
@@ -61,7 +61,6 @@ import * as pdfjsLib from 'pdfjs-dist'
 import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api'
 
 // pdf.js worker
-// @ts-ignore
 pdfjsLib.GlobalWorkerOptions.workerSrc =
   'https://cdn.jsdelivr.net/npm/pdfjs-dist@5.4.394/build/pdf.worker.min.mjs'
 
@@ -110,38 +109,48 @@ const onFileChange = async (e: Event) => {
 
 // рендер текущей страницы в canvas и конвертация в изображение для Pintura
 const renderCurrentPage = async () => {
-  if (!pdfDocInternal || !pdfCanvas.value) return
+    error.value = ''
 
-  try {
-    const page: PDFPageProxy = await pdfDocInternal.getPage(currentPage.value)
-
-    const scale = 3;
-    const viewport = page.getViewport({ scale: scale })
-    const canvas = pdfCanvas.value
-    const context = canvas.getContext('2d')
-
-    if (!context) return
-
-    canvas.height = viewport.height
-    canvas.width = viewport.width
-    canvas.style.width = (viewport.width / scale) + "px";
-    canvas.style.height = (viewport.height / scale) + "px";
-
-    const renderContext = {
-        canvasContext: context,
-        viewport,
-        canvas
+    if (!pdfDocInternal) {
+        error.value = 'Документ не найден'
+        return
+    } 
+    
+    if (!pdfCanvas.value) {
+        error.value = 'pdfCanvas не найден'
+        return
     }
 
-    await page.render(renderContext).promise
-
-    // получаем base64‑изображение страницы
-    const dataUrl = canvas.toDataURL('image/png')
-    currentImageSrc.value = dataUrl
-  } catch (err) {
-    console.error(err)
-    error.value = 'Ошибка при рендеринге страницы.'
-  }
+    try {
+        const page: PDFPageProxy = await pdfDocInternal.getPage(currentPage.value)
+        
+        //scale позволяет увеличить разрешение
+        const scale = 3
+        const viewport = page.getViewport({ scale: scale })
+        const canvas = pdfCanvas.value
+        const context = canvas.getContext('2d')
+        
+        if (!context) return
+        
+        canvas.height = viewport.height
+        canvas.width = viewport.width
+        canvas.style.width = (viewport.width / scale) + "px"
+        canvas.style.height = (viewport.height / scale) + "px"
+        
+        const renderContext = {
+            canvasContext: context,
+            viewport,
+            canvas
+        }
+      
+        await page.render(renderContext).promise
+        
+        const dataUrl = canvas.toDataURL('image/png') //base64‑изображение страницы
+        currentImageSrc.value = dataUrl
+    } catch (err) {
+        console.error(err)
+        error.value = 'Ошибка при рендеринге страницы.'
+    }
 }
 
 const prevPage = async () => {
@@ -241,15 +250,12 @@ a:hover {
 }
 
 .error {
-  color: #d32f2f;
+  color: var(--warning-color);
   margin-bottom: 12px;
 }
 
 .editor-layout {
   display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 1em;
-  padding-bottom: 1em;
 }
 
 .pdf-container canvas {
@@ -259,7 +265,7 @@ a:hover {
 }
 
 .pintura-container {
-  border: 1px solid #ccc;
+  box-sizing: border-box;
   width: calc(100vw - 52px);
 }
 
@@ -267,5 +273,24 @@ a:hover {
   margin: 24px;
   font-size: 16px;
   color: #666;
+  text-align: center;
+}
+
+@media(max-width: 575px) {
+    .header {
+        grid-template-columns: 1fr auto;
+    }
+    .tg-link {
+        display: none;
+    }
+    .pintura-container {
+        width: 100vw;
+    }
+    .editor-layout {
+        padding: 0;
+    }
+    .main {
+        min-height: calc(100vh - 70px);
+    }
 }
 </style>
