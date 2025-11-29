@@ -1,3 +1,5 @@
+PDF-редактор, использующий библиотеки PDF.js и Pintura, на русском языке.
+
 # Nuxt Minimal Starter
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
