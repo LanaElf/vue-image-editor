@@ -58,7 +58,7 @@
 <script setup lang="ts">
 import { ref, nextTick  } from 'vue'
 import * as pdfjsLib from 'pdfjs-dist'
-import type { PDFDocumentProxy, PDFPageProxy } from 'pdfjs-dist/types/src/display/api'
+import type { PDFDocumentProxy, PDFPageProxy, RenderTask } from 'pdfjs-dist/types/src/display/api'
 
 // pdf.js worker
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -107,18 +107,20 @@ const onFileChange = async (e: Event) => {
   }
 }
 
+const currentRenderTask = ref<RenderTask | null>(null)
+
 // рендер текущей страницы в canvas и конвертация в изображение для Pintura
 const renderCurrentPage = async () => {
     error.value = ''
 
-    if (!pdfDocInternal) {
-        error.value = 'Документ не найден'
+    if (!pdfDocInternal || !pdfCanvas.value) {
         return
-    } 
-    
-    if (!pdfCanvas.value) {
-        error.value = 'pdfCanvas не найден'
-        return
+    }
+
+        // Отменяем предыдущую задачу рендеринга, если она активна
+    if (currentRenderTask.value) {
+        currentRenderTask.value.cancel()
+        currentRenderTask.value = null
     }
 
     try {
@@ -126,11 +128,13 @@ const renderCurrentPage = async () => {
         
         //scale позволяет увеличить разрешение
         const scale = 3
-        const viewport = page.getViewport({ scale: scale })
+        const viewport = page.getViewport({ scale })
         const canvas = pdfCanvas.value
         const context = canvas.getContext('2d')
         
-        if (!context) return
+        if (!context) {
+            return
+        }
         
         canvas.height = viewport.height
         canvas.width = viewport.width
@@ -142,14 +146,27 @@ const renderCurrentPage = async () => {
             viewport,
             canvas
         }
-      
-        await page.render(renderContext).promise
+
+        // Сохраняем задачу рендеринга
+        const task = page.render(renderContext)
+        currentRenderTask.value = task
+
+        await task.promise
+
+        // Очищаем задачу после завершения
+        currentRenderTask.value = null
         
         const dataUrl = canvas.toDataURL('image/png') //base64‑изображение страницы
         currentImageSrc.value = dataUrl
-    } catch (err) {
+    } catch (err: any) {
+        // Игнорируем нормальную ошибку отмены
+        if (err?.name === 'RenderingCancelledException') {
+          return
+        }
+
         console.error(err)
         error.value = 'Ошибка при рендеринге страницы.'
+        currentRenderTask.value = null
     }
 }
 
