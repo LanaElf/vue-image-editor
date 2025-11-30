@@ -21,7 +21,7 @@ body {
 }
 
 .btn:hover:not(:disabled) {
-    background-color: var(--secondary-color);
+  background-color: var(--secondary-color);
 }
 
 .btn:disabled {

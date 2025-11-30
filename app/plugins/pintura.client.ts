@@ -1,43 +1,43 @@
 // plugins/pintura.client.ts
-import { defineNuxtPlugin } from '#app'
-import { 
-    getEditorDefaults, 
-    locale_en_gb, 
-    plugin_annotate_locale_en_gb,
-    markup_editor_locale_en_gb,
- } from '@pqina/pintura'
-import { PinturaEditor } from '@pqina/vue-pintura'
-import '@pqina/pintura/pintura.css'
+import { defineNuxtPlugin } from "#app";
+import {
+  getEditorDefaults,
+  locale_en_gb,
+  plugin_annotate_locale_en_gb,
+  markup_editor_locale_en_gb,
+} from "@pqina/pintura";
+import { PinturaEditor } from "@pqina/vue-pintura";
+import "@pqina/pintura/pintura.css";
 
 const ruLocale = {
   ...locale_en_gb,
   ...plugin_annotate_locale_en_gb,
   ...markup_editor_locale_en_gb,
 
-   // Статусы загрузки
+  // Статусы загрузки
   statusImageLoadNone: "Ожидание загрузки изображения&hellip;",
-  statusImageLoadPrepare: "Подготовка изображения&hellip;", 
-  statusImageLoadBusy: "Загрузка изображения&hellip;", 
+  statusImageLoadPrepare: "Подготовка изображения&hellip;",
+  statusImageLoadBusy: "Загрузка изображения&hellip;",
   statusImageLoadError: "Ошибка обработки изображения",
-  statusImageProcessBusy:"Обработка изображения&hellip;",
+  statusImageProcessBusy: "Обработка изображения&hellip;",
 
   //основные действия
-  labelButtonUndo: 'Отменить',
-  labelButtonRedo: 'Повторить',
+  labelButtonUndo: "Отменить",
+  labelButtonRedo: "Повторить",
   labelButtonRevert: "Отменить всё",
-  labelButtonExport: 'Экспорт', 
+  labelButtonExport: "Экспорт",
 
   //инструменты
-  shapeLabelToolMove: 'Перемещение',
-  shapeLabelToolView: 'Просмотр',
-  shapeLabelToolEraser: 'Ластик',
-  shapeLabelToolSharpie: 'Кривая',
-  shapeLabelToolArrow: 'Стрелка',
-  shapeLabelToolLine: 'Линия',
-  shapeLabelToolRectangle: 'Прямоугольник',
-  shapeLabelToolEllipse: 'Круг',
-  shapeLabelToolText: 'Текст',
-  shapeLabelToolPath: 'Путь',
+  shapeLabelToolMove: "Редактирование",
+  shapeLabelToolView: "Просмотр",
+  shapeLabelToolEraser: "Ластик",
+  shapeLabelToolSharpie: "Кривая",
+  shapeLabelToolArrow: "Стрелка",
+  shapeLabelToolLine: "Линия",
+  shapeLabelToolRectangle: "Прямоугольник",
+  shapeLabelToolEllipse: "Круг",
+  shapeLabelToolText: "Текст",
+  shapeLabelToolPath: "Путь",
 
   //инструменты созданных объектов
   shapeTitleButtonFlipHorizontal: "Отразить по горизонтали",
@@ -53,7 +53,7 @@ const ruLocale = {
   labelZoomFit: "В пределах области просмотра",
   labelZoomIn: "Увеличить",
   labelZoomOut: "Уменьшить",
-  
+
   // Толщина линии
   labelSizeExtraSmall: "Очень тонкая",
   labelSizeSmall: "Тонкая",
@@ -69,19 +69,19 @@ const ruLocale = {
   shapeTitleLineStart: "Начало",
   shapeTitleLineEnd: "Конец",
 
-  shapeTitleLineNone: "Без наконечника", 
-  shapeTitleLineDecorationBar: "Засечка", 
+  shapeTitleLineNone: "Без наконечника",
+  shapeTitleLineDecorationBar: "Засечка",
   shapeTitleLineDecorationArrow: "Стрелка",
-  shapeTitleLineDecorationArrowSolid: "Заполненная стрелка", 
-  shapeTitleLineDecorationCircle: "Круг", 
-  shapeTitleLineDecorationCircleSolid: "Заполненный круг", 
-  shapeTitleLineDecorationSquare: "Квадрат", 
-  shapeTitleLineDecorationSquareSolid: "Заполненный квадрат", 
+  shapeTitleLineDecorationArrowSolid: "Заполненная стрелка",
+  shapeTitleLineDecorationCircle: "Круг",
+  shapeTitleLineDecorationCircleSolid: "Заполненный круг",
+  shapeTitleLineDecorationSquare: "Квадрат",
+  shapeTitleLineDecorationSquareSolid: "Заполненный квадрат",
 
   //параметры формы
   shapeTitleStrokeColor: "Цвет линии",
   shapeTitleStrokeWidth: "Толщина линии",
-  shapeTitleBackgroundColor : "Цвет заливки",
+  shapeTitleBackgroundColor: "Цвет заливки",
 
   //параметры текста
   shapeTitleCornerRadius: "Радиус",
@@ -100,7 +100,7 @@ const ruLocale = {
 
   labelNone: "Нет",
   labelColorPalette: "Цветовая палитра",
-}
+};
 
 //поиск нужного ключа локали по значению
 //const keyByValue = Object.keys(ruLocale).filter(key => ruLocale[key as keyof typeof ruLocale] === 'Значение')
@@ -108,17 +108,17 @@ const ruLocale = {
 
 export default defineNuxtPlugin((nuxtApp) => {
   const defaults = getEditorDefaults({
-    utils: ['annotate'],
+    utils: ["annotate"],
     locale: ruLocale,
     enableMoveTool: true,
     enableViewTool: true,
-  })
+  });
 
-  nuxtApp.vueApp.component('PinturaEditor', PinturaEditor)
-  
+  nuxtApp.vueApp.component("PinturaEditor", PinturaEditor);
+
   return {
     provide: {
       pinturaDefaults: defaults,
-    }
-  }
-})
+    },
+  };
+});
